@@ -1,0 +1,20 @@
+---
+- name: "QEMU: Prepare source code"
+  include_role:
+    name: common
+    tasks_from: download.yml
+  vars:
+    task: QEMU
+    tar_url: "{{ urls.qemu }}"
+    tar_dst: "{{ (tmp_dir, urls.qemu | basename) | path_join }}"
+    tar_dir: "{{ (tmp_dir, 'qemu') | path_join }}"
+
+- name: "QEMU: Configure project"
+  command:
+    cmd: ./configure --target-list=x86_64-softmmu --prefix={{ usr_dir }}
+    chdir: "{{ src_dir }}"
+
+- name: "QEMU: Build and Install"
+  command:
+    cmd: make install -j{{ ansible_facts.processor_nproc }}
+    chdir: "{{ src_dir }}"

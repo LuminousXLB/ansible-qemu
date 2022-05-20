@@ -5,9 +5,17 @@
     workspace: "{{ ('/temp', ansible_env.USER) | path_join }}"
     usr_dir: "{{ (workspace, 'usr') | path_join }}"
     tmp_dir: "{{ (workspace, 'tmp') | path_join }}"
+    paths:
+      - "{{ (usr_dir, 'bin') | path_join }}"
+      - "{{ (ansible_env.HOME, '.local/bin') | path_join }}"
+      - "{{ (ansible_env.HOME, '.local/usr/bin') | path_join }}"
+      - "{{ ansible_env.PATH }}"
+    pkg_config_paths:
+      - "{{ (usr_dir, 'lib/pkgconfig') | path_join }}"
+      - "{{ (usr_dir, 'lib/x86_64-linux-gnu/pkgconfig') | path_join }}"
   environment:
-    PATH: "{{ ansible_env.HOME }}/.local/bin:{{ ansible_env.HOME }}/.local/usr/bin:{{ ansible_env.PATH }}"
-    PKG_CONFIG_PATH: "{{ (usr_dir, 'lib/x86_64-linux-gnu/pkgconfig') | path_join }}"
+    PATH: "{{ paths | join(':') }}"
+    PKG_CONFIG_PATH: "{{ pkg_config_paths | join(':') }}"
   tasks:
     - name: Create directories
       ansible.builtin.file:
@@ -22,12 +30,30 @@
         name: urls
         file: urls.yml
 
+    # TODO: do we have to install pkg-config as well?
     - block:
         - name: "Check GLib"
           command: pkg-config --libs glib-2.0
-          register: pkgcfg
 
       rescue:
         - include_role:
-            name: qemu-dep
+            name: qemu
             tasks_from: glib.yml
+
+    - block:
+        - name: "Check Pixman"
+          command: pkg-config --libs pixman-1
+
+      rescue:
+        - include_role:
+            name: qemu
+            tasks_from: pixman.yml
+
+    - block:
+        - name: "Check QEMU"
+          command: which qemu-system-x86_64
+
+      rescue:
+        - include_role:
+            name: qemu
+            tasks_from: qemu.yml
