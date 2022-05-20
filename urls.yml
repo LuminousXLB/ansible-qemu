@@ -1,3 +1,7 @@
 glib: https://download.gnome.org/sources/glib/2.72/glib-2.72.1.tar.xz
 pixman: https://www.cairographics.org/releases/pixman-0.40.0.tar.gz
 qemu: https://download.qemu.org/qemu-7.0.0.tar.xz
+libcap2: http://archive.ubuntu.com/ubuntu/pool/main/libc/libcap2/libcap2_2.44.orig.tar.xz
+bzip2: https://sourceware.org/pub/bzip2/bzip2-1.0.8.tar.gz
+cdrkit: http://archive.ubuntu.com/ubuntu/pool/main/c/cdrkit/cdrkit_1.1.11.orig.tar.gz
+cloud_utils: https://github.com/canonical/cloud-utils/archive/refs/tags/0.33.tar.gz

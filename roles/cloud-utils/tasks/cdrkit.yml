@@ -1,0 +1,15 @@
+---
+- name: "cdrkit: Prepare source code"
+  include_role:
+    name: common
+    tasks_from: download.yml
+  vars:
+    task: cdrkit
+    tar_url: "{{ urls.cdrkit }}"
+    tar_dst: "{{ (tmp_dir, urls.cdrkit | basename) | path_join }}"
+    tar_dir: "{{ (tmp_dir, 'cdrkit') | path_join }}"
+
+- name: "cdrkit: Build and Install"
+  command:
+    cmd: make CFLAGS="-I{{ usr_dir }}/usr/include -I{{ usr_dir }}/include" LDFLAGS="-L{{ usr_dir }}/lib64 -L{{ usr_dir }}/lib" PREFIX={{ usr_dir }} install -j{{ ansible_facts.processor_nproc }}
+    chdir: "{{ src_dir }}"

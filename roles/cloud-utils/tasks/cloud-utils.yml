@@ -1,0 +1,15 @@
+---
+- name: "cloud-utils: Prepare source code"
+  include_role:
+    name: common
+    tasks_from: download.yml
+  vars:
+    task: cloud-utils
+    tar_url: "{{ urls.cloud_utils }}"
+    tar_dst: "{{ (tmp_dir, urls.cloud_utils | basename) | path_join }}"
+    tar_dir: "{{ (tmp_dir, 'cloud-utils') | path_join }}"
+
+- name: "cloud-utils: Install"
+  command:
+    cmd: make install DESTDIR={{ usr_dir }}
+    chdir: "{{ src_dir }}"

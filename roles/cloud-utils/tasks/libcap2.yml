@@ -1,0 +1,15 @@
+---
+- name: "libcap2: Prepare source code"
+  include_role:
+    name: common
+    tasks_from: download.yml
+  vars:
+    task: libcap2
+    tar_url: "{{ urls.libcap2 }}"
+    tar_dst: "{{ (tmp_dir, urls.libcap2 | basename) | path_join }}"
+    tar_dir: "{{ (tmp_dir, 'libcap2') | path_join }}"
+
+- name: "libcap2: Install"
+  command:
+    cmd: make install FAKEROOT={{ usr_dir }}
+    chdir: "{{ src_dir }}"

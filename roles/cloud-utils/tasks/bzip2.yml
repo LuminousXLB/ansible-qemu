@@ -1,0 +1,15 @@
+---
+- name: "bzip2: Prepare source code"
+  include_role:
+    name: common
+    tasks_from: download.yml
+  vars:
+    task: bzip2
+    tar_url: "{{ urls.bzip2 }}"
+    tar_dst: "{{ (tmp_dir, urls.bzip2 | basename) | path_join }}"
+    tar_dir: "{{ (tmp_dir, 'bzip2') | path_join }}"
+
+- name: "bzip2: Build and Install"
+  command:
+    cmd: make install -j{{ ansible_facts.processor_nproc }} PREFIX={{ usr_dir }}
+    chdir: "{{ src_dir }}"

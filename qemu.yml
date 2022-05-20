@@ -13,6 +13,7 @@
     pkg_config_paths:
       - "{{ (usr_dir, 'lib/pkgconfig') | path_join }}"
       - "{{ (usr_dir, 'lib/x86_64-linux-gnu/pkgconfig') | path_join }}"
+      - "{{ (usr_dir, 'lib64/pkgconfig') | path_join }}"
   environment:
     PATH: "{{ paths | join(':') }}"
     PKG_CONFIG_PATH: "{{ pkg_config_paths | join(':') }}"
@@ -57,3 +58,42 @@
         - include_role:
             name: qemu
             tasks_from: qemu.yml
+
+    - block:
+        - name: "Check libcap2"
+          command: pkg-config --libs libcap
+
+      rescue:
+        - include_role:
+            name: cloud-utils
+            tasks_from: libcap2.yml
+
+    - block:
+        - name: "Check bzip2"
+          stat:
+            path: "{{ (usr_dir, 'include/bzlib.h') | path_join }}"
+          register: bzlib_st
+          failed_when: not bzlib_st.stat.exists
+
+      rescue:
+        - include_role:
+            name: cloud-utils
+            tasks_from: bzip2.yml
+
+    - block:
+        - name: "Check cdrkit"
+          command: which genisoimage
+
+      rescue:
+        - include_role:
+            name: cloud-utils
+            tasks_from: cdrkit.yml
+
+    - block:
+        - name: "Check cloud-utils"
+          command: which cloud-localds
+
+      rescue:
+        - include_role:
+            name: cloud-utils
+            tasks_from: cloud-utils.yml
