@@ -1,0 +1,33 @@
+---
+- name: "GLib: Prepare source code"
+  include_tasks:
+    file: common.yml
+  vars:
+    task: GLib
+    tar_url: "{{ urls.glib }}"
+    tar_dst: "{{ (tmp_dir, urls.glib | basename) | path_join }}"
+    tar_dir: "{{ (tmp_dir, 'glib') | path_join }}"
+
+- block:
+    - name: "GLib: Check meson"
+      command: "meson -v"
+
+  rescue:
+    - name: "GLib: Install meson"
+      pip:
+        name: meson
+
+- name: "GLib: Setup meson project"
+  command:
+    cmd: meson setup _build
+    chdir: "{{ src_dir }}"
+
+- name: "GLib: Setup installation prefix"
+  command:
+    cmd: meson configure _build --prefix={{ usr_dir }}
+    chdir: "{{ src_dir }}"
+
+- name: "GLib: Build and Install"
+  command:
+    cmd: meson install -C _build
+    chdir: "{{ src_dir }}"

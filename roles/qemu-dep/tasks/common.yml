@@ -1,0 +1,41 @@
+---
+- block:
+    - name: "{{ task }}: Check source code archive"
+      stat:
+        path: "{{ tar_dst }}"
+      register: tar_st
+      failed_when: not tar_st.stat.exists
+
+  rescue:
+    - name: "{{ task }}: Download source code archive"
+      get_url:
+        url: "{{ tar_url }}"
+        dest: "{{ tar_dst }}"
+
+- name: "{{ task }}: Check source code directory"
+  file:
+    path: "{{ tar_dir }}"
+    state: absent
+
+- name: "{{ task }}: Create directory for extraction"
+  file:
+    path: "{{ tar_dir }}"
+    state: directory
+
+- name: "{{ task }}: Extract source code from archive"
+  unarchive:
+    src: "{{ tar_dst }}"
+    dest: "{{ tar_dir }}"
+    remote_src: yes
+  register: untar
+
+- name: "{{ task }}: Locate source code direcoty"
+  find:
+    path: "{{ tar_dir }}"
+    file_type: "directory"
+  register: src_ls
+
+- name: "{{ task }}: Set source code direcoty"
+  set_fact:
+    src_dir: "{{ src_ls.files[0].path }}"
+  failed_when: src_ls.files | length != 1

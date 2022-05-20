@@ -1,0 +1,33 @@
+---
+- name: My playbook
+  hosts: all
+  vars:
+    workspace: "{{ ('/temp', ansible_env.USER) | path_join }}"
+    usr_dir: "{{ (workspace, 'usr') | path_join }}"
+    tmp_dir: "{{ (workspace, 'tmp') | path_join }}"
+  environment:
+    PATH: "{{ ansible_env.HOME }}/.local/bin:{{ ansible_env.HOME }}/.local/usr/bin:{{ ansible_env.PATH }}"
+    PKG_CONFIG_PATH: "{{ (usr_dir, 'lib/x86_64-linux-gnu/pkgconfig') | path_join }}"
+  tasks:
+    - name: Create directories
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        mode: "0755"
+      loop:
+        - "{{ usr_dir }}"
+        - "{{ tmp_dir }}"
+
+    - include_vars:
+        name: urls
+        file: urls.yml
+
+    - block:
+        - name: "Check GLib"
+          command: pkg-config --libs glib-2.0
+          register: pkgcfg
+
+      rescue:
+        - include_role:
+            name: qemu-dep
+            tasks_from: glib.yml
