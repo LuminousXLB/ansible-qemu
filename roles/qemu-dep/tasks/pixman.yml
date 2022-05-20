@@ -1,0 +1,20 @@
+---
+- name: "Pixman: Prepare source code"
+  include_role:
+    name: common
+    tasks_from: download.yml
+  vars:
+    task: Pixman
+    tar_url: "{{ urls.pixman }}"
+    tar_dst: "{{ (tmp_dir, urls.pixman | basename) | path_join }}"
+    tar_dir: "{{ (tmp_dir, 'pixman') | path_join }}"
+
+- name: "Pixman: Configure project"
+  command:
+    cmd: ./configure --prefix={{ usr_dir }}
+    chdir: "{{ src_dir }}"
+
+- name: "Pixman: Build and Install"
+  command:
+    cmd: make install -j{{ ansible_facts.processor_nproc }}
+    chdir: "{{ src_dir }}"
